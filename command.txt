@@ -1,0 +1,251 @@
+套件下载：http://source.android.com/compatibility/downloads.html
+
+androidp
+playready key 烧写方法：
+user版本
+（1.证书push到/sdcard/目录
+   2.进入到系统，点进设置，点击Apps，点击See all apps，点击Show system apps，点击PlayreadyProvision,启动应用。
+   3.执行sample_playreadypk_provision /data/vendor/playready/ /vendor/lib/ 进行烧写）
+其他版本
+{可用上述方法，还可用以下方法。
+1.证书push到/data/vendor/playready目录下面。
+2.执行sample_playreadypk_provision /data/vendor/playready/ /vendor/lib/ 进行烧写}
+
+keymaster key 烧写方法：	
+
+user版本
+（1.将key文件如Hisilicon_Earth_KeyMaster_000001.bin，push到/sdcard/目录
+   2.进入到系统，点进设置，点击Apps，点击See all apps，点击Show system apps，点击HiKeymasterProvision，启动应用。
+   3.执行 sample_keymaster_provision /vendor/lib/ /data/vendor/keymaster/keymaster_keybox.bin 进行烧写）
+其他版本
+{可用上述方法，还可用以下方法。
+1.将key文件push到/data/vendor/keymaster目录下面。
+2.执行 sample_keymaster_provision /vendor/lib/ /data/vendor/keymaster/keymaster_keybox.bin 进行烧写}
+		
+查看单板指纹命令进shell下：getprop ro.build.fingerprint 
+报告结果里面查看所跑的指纹
+
+
+setenforce 0
+getenforce
+setprop media.hp.ff.hiplayer false
+
+
+androidp 测试方法
+1:vts和pure cts用vts-9.0-r5套件
+2:atv用cts-9.0-r5套件
+3:gts用gts-6.0-r3
+
+3.AndroidP 烧写镜像，atv kernel 选择kernel_avb; pure kernel选择kernel_sign, pure system 选择system_sign
+
+4.gts命令run gts-suite -d -o --disable-reboot --logcat-on-failure -s 192.168.1.100:5555
+
+run retry --retry --disable-reboot -s 192.168.1.102:5555
+
+单跑模块：run gts-suite -d -o --disable-reboot --logcat-on-failure -m GtsBootStatsTestCases -t android.bootstats.cts.BootStatsHostTest#testBootStats -s 0123456789
+
+5.atv 命令run cts-suite -d -o --disable-reboot --logcat-on-failure --shard-count 4 -s 192.168.2.73:5555 -s 192.168.2.87:5555 -s 192.168.2.243:5555 -s 192.168.2.122:5555
+ 
+run retry --retry 2 --disable-reboot -s 192.168.1.102:5555
+
+单跑模块：run cts-suite -d -o --disable-reboot --logcat-on-failure -m CtsMediaTestCases -t android.media.cts.ResourceManagerTest#testReclaimResourceNonsecureVsNonsecure -s 0123456789
+
+删除模块：run retry --retry 2 --exclude-filter CtsMediaTestCases --exclude-filter CtsVideoTestCases -s 0123456789
+
+6:pure命令run cts-on-gsi -d -o --disable-reboot --logcat-on-failure --shard-count 4 -s 192.168.2.126:5555 -s 192.168.2.198:5555 -s 192.168.2.12:5555 -s 192.168.2.123:5555
+
+run cts-on-gsi-retry --retry --disable-reboot -s 192.168.1.102:5555
+
+单跑模块：run cts-on-gsi -d -o --disable-reboot --logcat-on-failure -m 模块名称 -t 某条case -s 192.168.1.130:5555
+
+7:vts命令  run vts -d -o --disable-reboot --logcat-on-failure -s 192.168.1.138:5555
+
+run vts -d -o --logcat-on-failure -s 192.168.1.138:5555 -r 6
+
+单跑模块：run vts -m 模块名称 -t 某条case -s 单板ip
+
+8.keymaster 烧写命令：sample_keymaster_provision /vendor/lib/ /data/vendor/keymaster/keymaster_keybox.bin（需要在app中打开keymaster烧写工具）
+9.Playready 烧写命令：sample_playreadypk_provision /data/vendor/playready/ /vendor/lib/（需要在app中打开Playready烧写工具）
+
+
+
+
+androidO测试方法
+1:pure cts用cts-8.0-r14套件
+2:atv cts用cts-8.0-r14套件
+3:vts用vts-r8
+4:gts用gts-6.0-r1
+
+5:pure cts 用命令run cts-reference-aosp -d -o --disable-reboot --logcat-on-failure -s 192.168.1.110:5555 -s 192.168.1.100:5555 -s 192.168.1.104:5555 -s 192.168.1.102:5555 --shards 4
+
+6：atv cts 用命令run cts -d -o --disable-reboot --logcat-on-failure -s 192.168.1.106:5555 -s 192.168.1.108:5555 -s 192.168.1.138:5555 -s 192.168.1.122:5555 -s 192.168.1.117:5555 --shards 5
+
+单跑模块：run cts -m CtsBluetoothTestCases -t android.bluetooth.cts.BluetoothLeScanTest#testBasicBleScan -s 0123456789
+
+7：gts用命令与p版本套件是一样，命令也是一样的run gts-suite -d -o --disable-reboot --logcat-on-failure -s 192.168.1.102:5555
+
+run gts-suite -d -o --disable-reboot --logcat-on-failure -s 192.168.1.102:5555 -s 192.168.1.102:5555 --shards-count 2
+
+run retry --retry 1 -s 192.168.1.162:5555 
+
+8：vts的命令与p版本的套件不一样，但命令是一样的run vts -d -o --logcat-on-failure -s 192.168.1.114:5555
+run vts -d -o --logcat-on-failure -s 192.168.1.114:5555 --shard-count 2
+run vts -d -o --logcat-on-failure -s 0123456789 -r 7
+
+0版本所有的retry都是在命令后面加-r ,与p版本的retry 命令不同
+
+
+
+run cts -d -o --disable-reboot --logcat-on-failure -s 192.168.1.198:5555 -s 192.168.1.101:5555 -s 192.168.1.199:5555 --shards 3
+
+
+
+
+cts verify测试步骤：
+
+1.进入google下载cts verify套件
+2.放入服务器并解压
+3.安装cts verify apk至单板
+4.开始测试
+
+
+
+
+Android O ATV失败项注意事项：（armeabi-v7a CtsSecurityTestCases/armeabi-v7a CtsShortcutManagerTestCases 
+豁免项）
+
+1.armeabi-v7a CtsLeanbackJankTestCases/armeabi-v7a CtsLibcoreTestCases/
+->需要烧base720复测或者切换UI显示至720p
+
+2.armeabi-v7a CtsBootStatsTestCases/armeabi-v7a CtsSyncContentHostTestCases
+->需要disable reboot去掉复测
+
+3.armeabi-v7a CtsNetTestCases
+->需要连ipv6的wifi Dlink（password：12345678）
+
+Android O gts失败项注意事项：（armeabi-v7a GtsPackageManagerHostTestCases/armeabi-v7a GtsPlacementTestCases/armeabi-v7a GtsWebViewTestCases/armeabi-v7a GtsLauncherHostTestCases 
+豁免项）
+
+
+
+
+Android P pure cts失败项注意事项：（armeabi-v7a GtsPackageManagerHostTestCases/armeabi-v7a GtsPlacementTestCases/armeabi-v7a GtsWebViewTestCases/armeabi-v7a GtsLauncherHostTestCases 
+豁免项
+
+1.armeabi-v7a CtsLibcoreTestCases/armeabi-v7a CtsNetTestCases
+->需要连ipv6 wifi复测（连usb测试）
+
+2.armeabi-v7a CtsWindowManagerDeviceTestCases（失败18条）
+->执行此模块时需观察到，跑之前切换到launcher其它页面，跑一条执行一次
+
+3.armeabi-v7a CtsAccessibilityServiceTestCases 
+->失败22条，过不了
+
+4.armeabi-v7a CtsActivityManagerDeviceTestCases（一条过不了）
+
+5.armeabi-v7a CtsAppSecurityHostTestCases（2条过不了）
+
+6.armeabi-v7a CtsBluetoothTestCases（2条过不了）
+
+7.armeabi-v7a CtsSyncContentHostTestCases 
+->去掉disable reboot进行复测
+
+8.进行retry时去掉disable reboot进行复测
+
+
+Android P gts不能通过项（一共9条）
+
+1.armeabi-v7a GtsBackupHostTestCases（5条）
+com.google.android.gts.backup.RestoreAppConfiguredHostTest#testRestoreApp_hasDefaultListenerAccess
+com.google.android.gts.backup.RestoreAppConfiguredHostTest#testRestoreApp_hasPermissionBackup
+com.google.android.gts.backup.RestoreAppConfiguredHostTest#testRestoreApp_hasPermissionSubstituteNotificationAppName
+com.google.android.gts.backup.RestoreAppConfiguredHostTest#testRestoreApp_hasPermissionWriteSecureSettings
+com.google.android.gts.backup.RestoreAppConfiguredHostTest#testRestoreApp_isInNonBlockableNotificationPackages
+
+2.armeabi-v7a G （1条）
+com.google.android.launcher.gts.LauncherHostTest#testDumpsysResult
+
+3.armeabi-v7a GtsNetworkWatchlistTestCases（1条）
+com.google.android.watchlist.gts.NetworkWatchlistTest#testNetworkWatchlistReports_visitNwtest
+
+4.armeabi-v7a GtsPackageUninstallTestCases（1条）
+com.google.android.packageinstaller.uninstall.gts.UninstallTest#testUninstall
+
+5.armeabi-v7a GtsPlacementTestCases （1条）
+com.google.android.placement.gts.CoreGmsAppsPrivappPermissionsTest#testCoreGmsAppsPermissionsWhitelisted
+
+AndroidP vts注意项：（需要全过）
+
+1.armeabi-v7a VtsHalWifiSupplicantV1_0Target/armeabi-v7a VtsHalWifiSupplicantV1_1Target/armeabi-v7a VtsHalWifiV1_0Host/armeabi-v7a VtsHalWifiV1_1Target/armeabi-v7a VtsHalWifiV1_2Target
+->需打开wifi测试
+
+2.armeabi-v7a VtsKernelBinderTest
+->需连GRE wifi跟usb测试
+
+
+Android P atv cts失败项注意事项：（armeabi-v7a CtsActivityManagerDeviceTestCases 
+/armeabi-v7a CtsSecurityTestCases/armeabi-v7a CtsUnofficialApisUsageTestCases/armeabi-v7a CtsViewTestCases)
+豁免项
+
+
+1.armeabi-v7a CtsSecurityTestCases(android.security.cts.SSLConscryptPlainTextExposureTest#test_android_CVE_2017_13309)
+->需烧key连usb跟wifi跑
+
+
+setprop media.mc.stats true
+
+GPU定频：echo 0 > /sys/module/mali/parameters/mali_dvfs_enable
+echo 864000 1100 > /proc/msp/pm_gpu
+
+CPU定频：echo userspace > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+echo 1200000 > /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+
+cat proc/msp/pm_gpu
+cat proc/msp/pm_cpu
+
+while true
+do
+cat /proc/msp/pm_gpu | grep -rn utilization
+sleep 0.3
+done
+
+adb logcat -v time -v threadtime>D:\Nevermore\1120.txt
+
+挂载cpu3：echo 8 > /proc/irq/159/smp_affinity
+cpu2：echo 4 > /proc/irq/159/smp_affinity
+cat /proc/irq/159/smp_affinity
+
+查看中断号：cat /proc/interrupts
+查看cpu使用率：busybox top
+
+
+data/vendor/mediadrm/persoData
+dr-xr-x--- 2 media mediadrm 4096 2019-01-08 17:41 .
+drwxrwx--- 7 media mediadrm 4096 2019-01-07 19:49 ..
+-r-------- 1 media mediadrm  494 2018-11-01 19:52 0303.pk
+-rw-rw-rw- 1 media mediadrm 2275 2018-11-16 11:27 csc.dat
+console:/data/vendor/mediadrm/persoData # 
+
+
+
+
+console:/vendor/lib/ta # ls -al
+total 1956
+drwxr-xr-x  2 root shell    4096 2019-01-07 16:11 .
+drwxr-xr-x 10 root shell    4096 2019-01-03 10:02 ..
+-rw-r--r--  1 root root   306656 2019-01-03 09:57 79b77788-9789-4a7a-a2be-b60155eef5f8.sec
+-rw-r--r--  1 root root   520800 2019-01-03 09:58 79b77788-9789-4a7a-a2be-b60155eef5f9.sec
+-rw-r--r--  1 root root    70496 2019-01-03 09:57 8a15cfba-d339-474f-86d1-b3bae5d0f3ff.sec
+-rw-r--r--  1 root root  1064688 2018-12-06 17:02 ea03fd02-80c4-41f6-a3e9-580e48a264cc.sec
+console:/vendor/lib/ta # 
+
+
+
+
+
+
+
+
+
