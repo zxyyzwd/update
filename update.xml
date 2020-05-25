@@ -1,0 +1,3 @@
+OTA.CurrentVersion=11
+OTA.upgrade.url=http://10.157.221.72:8080/update.zip
+ota.FilePath=fdf
